@@ -1,3 +1,5 @@
+import java.util.zip.ZipEntry
+
 apply plugin: 'com.android.application'
 
 android {
@@ -25,21 +27,59 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.1.1'
 }
 
-
-task copyApk(type: Copy) {
-    from 'build/outputs/apk/app-develop-release.apk'
-    into project.getBuildDir().getAbsolutePath() + File.separator
-}
-
 android.applicationVariants.all { variant ->
     variant.assemble.doLast {
-        moveApk(variant)
+        releaseApk(variant)
     }
 }
 
-def moveApk(targetVariant) {
-    def file = new File(project.getBuildDir().getAbsolutePath() + File.separator + "outputs" + File.separator + "apk" + File.separator + "app-develop-release.apk")
+def releaseApk(targetVariant) {
+
+    def file = new File(project.getBuildDir().getAbsolutePath() + File.separator + "outputs" + File.separator + "apk" + File.separator + "app-release-unsigned.apk")
     if (file.exists()) {
-        copyApk.execute()
+        System.out.println(project.getRootDir().getAbsolutePath() + "__1")   //工程根目录
+        System.out.println(project.getBuildDir().getAbsolutePath() + "__2")  //工程根目录/app/build
+        System.out.println(project.getBuildFile().getAbsolutePath() + "__3")  //工程根目录/app/build/build.gradle
+        System.out.println(project.getPath() + "__4")   //  :app
+        System.out.println(project.getProjectDir().getAbsolutePath() + "__5")  //工程根目录/app
+
+        def releaseDir = new File(project.getRootDir(), "/release_dir");
+        if (releaseDir.exists() && releaseDir.isDirectory()) {
+            for (File f: releaseDir.listFiles()) {
+                f.delete()
+            }
+        } else {
+            releaseDir.mkdir()
+        }
+
+        copy {
+            from 'build/outputs/apk/app-release-unsigned.apk'
+            into releaseDir.getAbsolutePath()
+        }
+        generateChannelPackage(new File(releaseDir, 'app-release-unsigned.apk'), releaseDir)
+    }
+}
+
+def generateChannelPackage(File sourceApk, File dir) {
+
+    def channelPackageDir = new File(dir, "/channels_package")
+
+    if (channelPackageDir.exists() && channelPackageDir.isDirectory()) {
+        for (File f: channelPackageDir.listFiles()) {
+            f.delete()
+        }
+    } else {
+        channelPackageDir.mkdir()
+    }
+
+    def channels = "im_001,im_002,im_003,im_004,im_005".split(",")
+    for(String channel: channels) {
+        copy {
+            from sourceApk.getAbsolutePath()
+            into channelPackageDir.getAbsolutePath()
+            rename (sourceApk.getName(), channel + ".apk")
+        }
+
+
     }
 }
