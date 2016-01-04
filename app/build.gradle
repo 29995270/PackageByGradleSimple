@@ -1,0 +1,45 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.1"
+
+    defaultConfig {
+        applicationId "com.wq.freeze.gradledemo2"
+        minSdkVersion 10
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:appcompat-v7:23.1.1'
+}
+
+
+task copyApk(type: Copy) {
+    from 'build/outputs/apk/app-develop-release.apk'
+    into project.getBuildDir().getAbsolutePath() + File.separator
+}
+
+android.applicationVariants.all { variant ->
+    variant.assemble.doLast {
+        moveApk(variant)
+    }
+}
+
+def moveApk(targetVariant) {
+    def file = new File(project.getBuildDir().getAbsolutePath() + File.separator + "outputs" + File.separator + "apk" + File.separator + "app-develop-release.apk")
+    if (file.exists()) {
+        copyApk.execute()
+    }
+}
