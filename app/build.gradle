@@ -49,7 +49,9 @@ android.applicationVariants.all { variant ->
 
 def releaseApk(targetVariant) {
 
-    def file = new File(project.getBuildDir().getAbsolutePath() + File.separator + "outputs" + File.separator + "apk" + File.separator + "app-release-unsigned.apk")
+    if (!targetVariant.name.equals('release')) return
+
+    def file = new File(project.getBuildDir().getAbsolutePath() + File.separator + "outputs" + File.separator + "apk" + File.separator + "app-release.apk")
     if (file.exists()) {
 //        System.out.println(project.getRootDir().getAbsolutePath() + "__1")   //工程根目录
 //        System.out.println(project.getBuildDir().getAbsolutePath() + "__2")  //工程根目录/app/build
@@ -65,10 +67,10 @@ def releaseApk(targetVariant) {
         }
 
         copy {
-            from 'build/outputs/apk/app-release-unsigned.apk'
+            from 'build/outputs/apk/app-release.apk'
             into releaseDir.getAbsolutePath()
         }
-        generateChannelPackage(new File(releaseDir, 'app-release-unsigned.apk'), releaseDir)
+        generateChannelPackage(new File(releaseDir, 'app-release.apk'), releaseDir)
     }
 }
 
@@ -103,7 +105,7 @@ def generateChannelPackage(File sourceApk, File dir) {
             into temp
         }
 
-        def channelFile = new File(temp, channel)
+        def channelFile = new File(temp.getAbsolutePath() + File.separator + "META-INF", channel)
         channelFile.createNewFile()
 
         tasks.create(name: 'zip' + channel, type: Zip) {
