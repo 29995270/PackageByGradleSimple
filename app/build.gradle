@@ -71,6 +71,11 @@ def releaseApk(targetVariant) {
             into releaseDir.getAbsolutePath()
         }
         generateChannelPackage(new File(releaseDir, 'app-release.apk'), releaseDir)
+
+//        def channelPackageDir = new File(releaseDir, "/channels_package")
+//        for (File f: channelPackageDir.listFiles()) {
+//            targetVariant.createZipAlignTask("align" + f.getName(), f, f).zipAlign() //has deprecated
+//        }
     }
 }
 
