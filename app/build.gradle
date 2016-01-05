@@ -1,4 +1,3 @@
-import java.util.zip.ZipEntry
 
 apply plugin: 'com.android.application'
 
@@ -13,8 +12,23 @@ android {
         versionCode 1
         versionName "1.0"
     }
+
+
+    signingConfigs {
+        debug {
+
+        }
+        release {
+            storeFile file("./mykeystore.jks")
+            storePassword "123456"
+            keyAlias "freeze"
+            keyPassword "123456"
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -37,17 +51,15 @@ def releaseApk(targetVariant) {
 
     def file = new File(project.getBuildDir().getAbsolutePath() + File.separator + "outputs" + File.separator + "apk" + File.separator + "app-release-unsigned.apk")
     if (file.exists()) {
-        System.out.println(project.getRootDir().getAbsolutePath() + "__1")   //工程根目录
-        System.out.println(project.getBuildDir().getAbsolutePath() + "__2")  //工程根目录/app/build
-        System.out.println(project.getBuildFile().getAbsolutePath() + "__3")  //工程根目录/app/build/build.gradle
-        System.out.println(project.getPath() + "__4")   //  :app
-        System.out.println(project.getProjectDir().getAbsolutePath() + "__5")  //工程根目录/app
+//        System.out.println(project.getRootDir().getAbsolutePath() + "__1")   //工程根目录
+//        System.out.println(project.getBuildDir().getAbsolutePath() + "__2")  //工程根目录/app/build
+//        System.out.println(project.getBuildFile().getAbsolutePath() + "__3")  //工程根目录/app/build/build.gradle
+//        System.out.println(project.getPath() + "__4")   //  :app
+//        System.out.println(project.getProjectDir().getAbsolutePath() + "__5")  //工程根目录/app
 
         def releaseDir = new File(project.getRootDir(), "/release_dir");
         if (releaseDir.exists() && releaseDir.isDirectory()) {
-            for (File f: releaseDir.listFiles()) {
-                f.delete()
-            }
+            delete(releaseDir)
         } else {
             releaseDir.mkdir()
         }
@@ -65,9 +77,7 @@ def generateChannelPackage(File sourceApk, File dir) {
     def channelPackageDir = new File(dir, "/channels_package")
 
     if (channelPackageDir.exists() && channelPackageDir.isDirectory()) {
-        for (File f: channelPackageDir.listFiles()) {
-            f.delete()
-        }
+        delete(channelPackageDir)
     } else {
         channelPackageDir.mkdir()
     }
@@ -81,5 +91,33 @@ def generateChannelPackage(File sourceApk, File dir) {
         }
 
 
+        def temp = new File(channelPackageDir, "/temp")
+        if (!temp.exists()) {
+            temp.mkdir()
+        } else {
+            delete(temp)
+        }
+
+        copy {
+            from zipTree(new File(channelPackageDir, channel + ".apk"))
+            into temp
+        }
+
+        def channelFile = new File(temp, channel)
+        channelFile.createNewFile()
+
+        tasks.create(name: 'zip' + channel, type: Zip) {
+            from temp
+            baseName = channel
+        }.execute()
+
+        delete(temp)
+        delete(new File(channelPackageDir, channel + ".apk"))
+
+        copy {
+            from project.getBuildDir().getAbsolutePath() + File.separator + "distributions" + File.separator + channel + ".zip"
+            into channelPackageDir.getAbsolutePath()
+            rename (channel + ".zip", channel + "_channeled.apk")
+        }
     }
 }
