@@ -33,6 +33,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    productFlavors {
+        im_100 { }
+        im_200 { }
+    }
 }
 
 dependencies {
@@ -49,9 +54,15 @@ android.applicationVariants.all { variant ->
 
 def releaseApk(targetVariant) {
 
-    if (!targetVariant.name.equals('release')) return
+    System.out.println(targetVariant.buildType.name) //release debug
+    System.out.println(targetVariant.name)   //im_100Release im_100Debug im_200Release ....
+    System.out.println(targetVariant.productFlavors.get(0).getName())  //im_100 im_200
 
-    def file = new File(project.getBuildDir().getAbsolutePath() + File.separator + "outputs" + File.separator + "apk" + File.separator + "app-release.apk")
+    if (!targetVariant.buildType.name.equals('release') || !targetVariant.productFlavors.get(0).getName().equals("im_100")) return
+
+    // apk name like this : projectName-productFlavorName-buildTypeName.apk
+    def file = new File(project.getBuildDir().getAbsolutePath() + File.separator + "outputs" + File.separator + "apk" + File.separator + "app-im_100-release.apk")
+    System.out.println("_________________________")
     if (file.exists()) {
 //        System.out.println(project.getRootDir().getAbsolutePath() + "__1")   //工程根目录
 //        System.out.println(project.getBuildDir().getAbsolutePath() + "__2")  //工程根目录/app/build
@@ -67,10 +78,11 @@ def releaseApk(targetVariant) {
         }
 
         copy {
-            from 'build/outputs/apk/app-release.apk'
+            from file
             into releaseDir.getAbsolutePath()
         }
-        generateChannelPackage(new File(releaseDir, 'app-release.apk'), releaseDir)
+
+        generateChannelPackage(new File(releaseDir, 'app-im_100-release.apk'), releaseDir)
 
 //        def channelPackageDir = new File(releaseDir, "/channels_package")
 //        for (File f: channelPackageDir.listFiles()) {
