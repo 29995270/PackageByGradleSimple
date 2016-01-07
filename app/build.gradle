@@ -61,6 +61,22 @@ dependencies {
 }
 
 android.applicationVariants.all { variant ->
+
+    //在merge文件之前进行一些操作，比如修改名字，替换什么的
+    def xhdpiDir = new File(project.getProjectDir().getAbsolutePath() + File.separator + "src" + File.separator + "main" + File.separator + "res" + File.separator + "drawable-xhdpi")
+    variant.mergeResources.doFirst {
+
+//        if (variant.buildType.name.equals('release') && variant.productFlavors.get(0).getName().equals("kanjiantv_xiaomi")) {
+//            def xiaomiIc = new File(xhdpiDir, "ic_launcher_xiaomi.png")
+//            xiaomiIc.renameTo(new File(xhdpiDir, "ic_launcher.png"))
+//        } else if(variant.buildType.name.equals('release') && !variant.productFlavors.get(0).getName().equals("kanjiantv_xiaomi")) {
+//            def xiaomiIc = new File(xhdpiDir, "ic_launcher.png")
+//            if (xiaomiIc.exists()) {
+//                xiaomiIc.renameTo(new File(xhdpiDir, "ic_launcher_xiaomi.png"))
+//            }
+//        }
+    }
+
     variant.assemble.doLast {
         releaseApk(variant)
 
