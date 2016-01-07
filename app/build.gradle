@@ -34,9 +34,23 @@ android {
         }
     }
 
+    sourceSets {
+
+        im_100 {
+            manifest.srcFile 'src/main/AndroidManifest.xml'
+        }
+        im_200 {
+            manifest.srcFile 'src/main/AndroidManifest002.xml'
+        }
+    }
+
     productFlavors {
-        im_100 { }
-        im_200 { }
+        im_100 {
+
+        }
+        im_200 {
+
+        }
     }
 }
 
@@ -49,6 +63,7 @@ dependencies {
 android.applicationVariants.all { variant ->
     variant.assemble.doLast {
         releaseApk(variant)
+
     }
 }
 
