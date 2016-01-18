@@ -11,6 +11,8 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+
+        buildConfigField "boolean", "ENABLE_DEBUG", "false"
     }
 
 
@@ -46,10 +48,12 @@ android {
 
     productFlavors {
         im_100 {
-
+//            manifestPlaceholders = [CHANNEL_NAME: "1000"]
+//            manifestPlaceholders = [IC_NAME: "@drawable/ic_launcher"]  //不要分条目写，会被覆盖，用下面类似kotlin的方式
         }
         im_200 {
-
+            manifestPlaceholders = [CHANNEL_NAME: "1000", IC_NAME: "@drawable/ic_launcher"]
+            buildConfigField "boolean", "ENABLE_DEBUG", "false"
         }
     }
 }
