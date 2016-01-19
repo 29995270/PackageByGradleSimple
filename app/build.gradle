@@ -11,7 +11,7 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
-
+        resValue "string", "RES_FOO", "RES FOO RELEASE"
         buildConfigField "boolean", "ENABLE_DEBUG", "false"
     }
 
